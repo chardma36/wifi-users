@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CHARDMA LTD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #000;
+      --container-bg: rgba(255, 255, 255, 0.95);
+      --button-bg: #28a745;
+      --button-border: #1e7e34;
+      --input-bg: #fff;
+      --input-text: #000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --text-color: #f0f0f0;
+        --container-bg: rgba(30, 30, 30, 0.95);
+        --button-bg: #34c759;
+        --button-border: #28a745;
+        --input-bg: #1e1e1e;
+        --input-text: #f0f0f0;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(to right, #f4f4f4, #e0e0e0);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(to right, #232526, #414345);
+      }
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: var(--container-bg);
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #28a745; /* Matches your button color */
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 5px 0 15px;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--button-bg);
+      color: white;
+      border: 2px solid var(--button-border);
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+
+    button:hover, button:focus {
+      opacity: 0.9;
+      outline: none;
+    }
+
+    .status {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .bottom-links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .bottom-links a {
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Popup styles */
+    #register-popup {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--container-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 90%;
+      z-index: 1000;
+    }
+    #register-popup .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 20px;
+      padding: 0 8px;
+      background: transparent;
+      border: none;
+      font-size: 2em;
+      color: var(--text-color);
+      cursor: pointer;
+      line-height: 1;
+    }
+    #register-popup input, #register-popup button {
+      margin-bottom: 10px;
+    }
+    #popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>CHARDMA ENGINEERING LTD</h2>
+    <form onsubmit="subscribe(); return false;">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" placeholder="e.g. 0712345678" required autocomplete="tel">
+
+      <label for="plan">Choose a Plan</label>
+      <select id="plan" required>
+        <option value="">-- CHOOSE A PLAN --</option>
+        <option value="1hour">1 Hour - KSH 20</option>
+        <option value="1day">1 Day - KSH 50</option>
+        <option value="7days">7 Days - KSH 200</option>
+        <option value="30days">30 Days - KSH 600</option>
+      </select>
+
+      <button type="submit" id="subscribe-btn">Pay & Connect</button>
+      <div class="status" id="status"></div>
+    </form>
+
+    <div class="bottom-links">
+      <a tabindex="0" onclick="forgotInfo()">Help</a>
+      <a tabindex="0" onclick="openRegistration()">Register</a>
+    </div>
+  </div>
+
+  <!-- Popup overlay for background dim -->
+  <div id="popup-overlay"></div>
+
+  <!-- Registration Popup -->
+  <div id="register-popup" role="dialog" aria-modal="true" aria-labelledby="reg-title">
+    <button class="close-btn" onclick="closeRegistration()" aria-label="Close">&times;</button>
+    <h3 id="reg-title" style="text-align:center;">User Registration</h3>
+    <label for="reg-phone">Phone Number</label>
+    <input type="tel" id="reg-phone" placeholder="e.g. 0712345678" required autocomplete="tel">
+
+    <label for="reg-name">Full Name</label>
+    <input type="text" id="reg-name" placeholder="Your Full Name" required autocomplete="name">
+
+    <label for="reg-location">Location</label>
+    <input type="text" id="reg-location" placeholder="Your Location" required autocomplete="address-level2">
+
+    <button onclick="submitRegistration()">Submit Registration</button>
+    <div id="reg-status" style="margin-top:10px; text-align:center;"></div>
+  </div>
+
+  <script>
+    function subscribe() {
+      const phone = document.getElementById('phone').value.trim();
+      const plan = document.getElementById('plan').value;
+      const status = document.getElementById('status');
+      const button = document.getElementById('subscribe-btn');
+
+      if (!phone || !plan) {
+        status.innerText = "❌ Please fill in all fields.";
+        status.style.color = "red";
+        return;
+      }
+
+      button.disabled = true;
+      status.style.color = "green";
+      status.innerText = `⏳ Initiating payment for ${phone} on the ${plan} plan...`;
+
+      setTimeout(() => {
+        status.innerText = `✅ Payment successful! You are now connected.`;
+        button.disabled = false;
+        // Here you would call backend/MikroTik API to authenticate
+      }, 2000);
+    }
+
+    function forgotInfo() {
+      // Create a simple popup with a clickable phone link
+      const helpHtml = `
+        <div style="text-align:center; padding:20px;">
+          <p>📞 For help, contact:</p>
+          <a href="tel:0715257116" style="display:inline-block; background:#28a745; color:#fff; padding:10px 20px; border-radius:5px; text-decoration:none; font-weight:bold;">Call 0715257116</a>
+        </div>
+      `;
+      // Create overlay
+      let overlay = document.createElement('div');
+      overlay.id = 'help-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = 0;
+      overlay.style.left = 0;
+      overlay.style.right = 0;
+      overlay.style.bottom = 0;
+      overlay.style.background = 'rgba(0,0,0,0.3)';
+      overlay.style.zIndex = 2000;
+      // Create popup
+      let popup = document.createElement('div');
+      popup.style.position = 'fixed';
+      popup.style.top = '30%';
+      popup.style.left = '50%';
+      popup.style.transform = 'translate(-50%, -30%)';
+      popup.style.background = 'var(--container-bg)';
+      popup.style.padding = '30px 20px';
+      popup.style.borderRadius = '10px';
+      popup.style.boxShadow = '0 0 20px rgba(0,0,0,0.2)';
+      popup.style.zIndex = 2001;
+      popup.innerHTML = helpHtml + '<br><button onclick="document.body.removeChild(document.getElementById(\'help-overlay\'));document.body.removeChild(this.parentNode);" style="margin-top:10px;">Close</button>';
+      overlay.onclick = function() {
+        document.body.removeChild(overlay);
+        document.body.removeChild(popup);
+      };
+      document.body.appendChild(overlay);
+      document.body.appendChild(popup);
+    }
+
+    function openRegistration() {
+      document.getElementById('register-popup').style.display = 'block';
+      document.getElementById('popup-overlay').style.display = 'block';
+      document.getElementById('reg-status').innerText = '';
+      // Focus first input for accessibility
+      setTimeout(() => document.getElementById('reg-phone').focus(), 100);
+    }
+
+    function closeRegistration() {
+      document.getElementById('register-popup').style.display = 'none';
+      document.getElementById('popup-overlay').style.display = 'none';
+    }
+
+    // Close popup if overlay is clicked
+    document.getElementById('popup-overlay').onclick = closeRegistration;
+
+    function submitRegistration() {
+      const phone = document.getElementById('reg-phone').value.trim();
+      const name = document.getElementById('reg-name').value.trim();
+      const location = document.getElementById('reg-location').value.trim();
+      const regStatus = document.getElementById('reg-status');
+
+      if (!phone || !name || !location) {
+        regStatus.innerText = "⚠️ Please fill in all fields.";
+        regStatus.style.color = "red";
+        return;
+      }
+
+      regStatus.style.color = "green";
+      regStatus.innerText = `✅ Registration submitted for ${name}. Thank you!`;
+
+      setTimeout(() => {
+        closeRegistration();
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
